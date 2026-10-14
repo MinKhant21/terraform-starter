@@ -36,5 +36,11 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private_subnet.id
 }
 
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.vpc.id
+  tags = {
+    Name = "main"
+  }
+}
 
 

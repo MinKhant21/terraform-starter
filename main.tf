@@ -31,10 +31,7 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public_subnet.id
 }
 
-resource "aws_route_table_association" "private" {
-  route_table_id = data.aws_route_table.route_table.id
-  subnet_id      = aws_subnet.private_subnet.id
-}
+
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
@@ -50,3 +47,40 @@ resource "aws_route" "public_internet" {
   gateway_id             = aws_internet_gateway.gw.id
 }
 
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "private-route"
+  }
+
+}
+
+resource "aws_route_table_association" "private" {
+  route_table_id = aws_route_table.private.id
+  subnet_id      = aws_subnet.private_subnet.id
+}
+resource "aws_eip" "nat" {
+  domain = "vpc"
+  tags = {
+    Name = "nat"
+  }
+  depends_on = [aws_internet_gateway.gw]
+}
+
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_subnet.id
+  tags = {
+    Name = "nat"
+  }
+  depends_on = [aws_internet_gateway.gw]
+
+}
+
+resource "aws_route" "private_nat" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.ngw.id
+}

@@ -39,8 +39,14 @@ resource "aws_route_table_association" "private" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "main"
+    Name = "igw"
   }
 }
 
+
+resource "aws_route" "public_internet" {
+  route_table_id         = data.aws_route_table.route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.gw.id
+}
 

@@ -26,5 +26,15 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
+resource "aws_route_table_association" "public" {
+  route_table_id = data.aws_route_table.route_table.id
+  subnet_id      = aws_subnet.public_subnet.id
+}
+
+resource "aws_route_table_association" "private" {
+  route_table_id = data.aws_route_table.route_table.id
+  subnet_id      = aws_subnet.private_subnet.id
+}
+
 
 
